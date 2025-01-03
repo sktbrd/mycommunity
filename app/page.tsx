@@ -29,34 +29,36 @@ export default function Home() {
   return (
     <Box bg="background" color="text" minH="100vh">
       <Flex direction={{ base: 'column', md: 'row' }}>
-        <Box flex="1" p={2} justifyContent="center">
-          {!conversation ? (
-            <Box
-              h="100vh" // Adjust height as needed
-              overflowY="auto" // Enable vertical scrolling
-              sx={{
-                '&::-webkit-scrollbar': {
-                  display: 'none',
-                },
-                '-ms-overflow-style': 'none',
-                scrollbarWidth: 'none',
-              }}
-              maxW={{ base: '100%', md: '720px' }}
-            >
-              <TweetComposer pa={thread_author} pp={thread_permlink} onNewComment={handleNewComment} />
-              <TweetList
-                author={thread_author}
-                permlink={thread_permlink}
-                setConversation={setConversation}
-                onOpen={onOpen}
-                setReply={setReply}
-                newComment={newComment} 
-              />
-            </Box>
-          ) : (
-            <Conversation comment={conversation} setConversation={setConversation} onOpen={onOpen} setReply={setReply} />
-          )}
-        </Box>
+        <Container maxW={{ base: '100%', md: '720px' }} p={0}>
+          <Box flex="1" p={2} justifyContent="center">
+            {!conversation ? (
+              <Box
+                h="100vh" // Adjust height as needed
+                overflowY="auto" // Enable vertical scrolling
+                sx={{
+                  '&::-webkit-scrollbar': {
+                    display: 'none',
+                  },
+                  '-ms-overflow-style': 'none',
+                  scrollbarWidth: 'none',
+                }}
+                maxW={{ base: '100%', md: '720px' }}
+              >
+                <TweetComposer pa={thread_author} pp={thread_permlink} onNewComment={handleNewComment} />
+                <TweetList
+                  author={thread_author}
+                  permlink={thread_permlink}
+                  setConversation={setConversation}
+                  onOpen={onOpen}
+                  setReply={setReply}
+                  newComment={newComment}
+                />
+              </Box>
+            ) : (
+              <Conversation comment={conversation} setConversation={setConversation} onOpen={onOpen} setReply={setReply} />
+            )}
+          </Box>
+        </Container>
         <RightSidebar />
       </Flex>
       {isOpen && <TweetReplyModal isOpen={isOpen} onClose={onClose} comment={reply} onNewReply={handleNewComment} />}
