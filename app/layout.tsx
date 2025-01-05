@@ -14,9 +14,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <Box bg="background" color="text" minH="100vh">
             {/* <Header /> */}
-            <Flex direction={{ base: 'column', md: 'row' }} height="100vh" overflow="hidden">
+            <Flex direction={{ base: 'column', md: 'row' }}>
               <Sidebar />
-              <Box flex="1" overflowY="auto">
+              <Box flex="1">
                 {children}
               </Box>
             </Flex>

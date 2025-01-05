@@ -30,40 +30,40 @@ export async function sendInvite(email: string, url: string): Promise<void> {
     const transporter = nodemailer.createTransport({
         service: 'gmail',  // This automatically sets host, port, and security settings for Gmail
         auth: {
-          user: process.env.EMAIL_USER,  // Your Gmail address
-          pass: process.env.EMAIL_PASS,  // App password or your Gmail password if "less secure apps" is enabled
+            user: process.env.EMAIL_USER,  // Your Gmail address
+            pass: process.env.EMAIL_PASS,  // App password or your Gmail password if "less secure apps" is enabled
         },
-      });
-    
-      // Email options
-      const mailOptions = {
+    });
+
+    // Email options
+    const mailOptions = {
         from: process.env.EMAIL_USER, // Sender address
         to: email, // Recipient address
         subject: 'Hive Invitation', // Subject link
         html: `<p>Click the following link to create your account:</p><a href="${url}">${url}</a>`, // Email body with reset link
-      };
-    
-      // Send the email
-      const mail = await transporter.sendMail(mailOptions);
-      //console.log(mail)
-      return
+    };
+
+    // Send the email
+    const mail = await transporter.sendMail(mailOptions);
+    //console.log(mail)
+    return
 }
 
 export const generatePassword = async () => {
     const array = new Uint32Array(10);
     crypto.getRandomValues(array);
-  
+
     const key = PrivateKey.fromSeed(array.toString()).toString();
     return key.substring(0, 25);
 }
-  
+
 export const getPrivateKeys = async (username: string, password: string, roles = ['owner', 'active', 'posting', 'memo']) => {
     const privKeys = {} as any;
     roles.forEach((role) => {
         privKeys[role] = PrivateKey.fromLogin(username, password, role as KeyRole).toString();
         privKeys[`${role}Pubkey`] = PrivateKey.from(privKeys[role]).createPublic().toString();
     });
-  
+
     return privKeys;
 };
 
@@ -105,6 +105,21 @@ export async function createAccount(username: string, password: string) {
         console.log('Account created successfully');
     } catch (error) {
         console.error('Error creating account:', error);
+    }
+}
+
+export async function getLastSnapsPost() {
+    const author = "peak.snaps";    // error was here, you typed peakd.snaps  ;(
+    const beforeDate = new Date().toISOString().split('.')[0];
+    const permlink = '';
+    const limit = 1;
+
+    const result = await HiveClient.database.call('get_discussions_by_author_before_date',
+        [author, permlink, beforeDate, limit]);
+
+    return {
+        author,
+        permlink: result[0].permlink
     }
 }
 

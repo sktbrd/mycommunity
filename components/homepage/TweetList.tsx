@@ -3,6 +3,7 @@ import { Box, Spinner, VStack, Text } from '@chakra-ui/react';
 import { useComments } from '@/hooks/useComments';
 import Tweet from './Tweet';
 import { Comment } from '@hiveio/dhive';
+import useSnaps from '@/hooks/useSnaps';
 
 interface TweetListProps {
   author: string;
@@ -25,9 +26,11 @@ export default function TweetList({
 }: TweetListProps) {
 
   const { comments, isLoading, error } = useComments(author, permlink, post);
-  const [isFetchingMore, setIsFetchingMore] = useState(false); 
-  const listRef = useRef<HTMLDivElement>(null); 
-  const isFetching = useRef(false); 
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+  const isFetching = useRef(false);
+
+  const snaps = useSnaps();
 
   const fetchMoreTweets = async () => {
     if (isFetching.current) return;
@@ -85,7 +88,7 @@ export default function TweetList({
 
   return (
     <Box
-      ref={listRef} 
+      ref={listRef}
       h="100vh"
       pt={2}
     >
@@ -100,7 +103,6 @@ export default function TweetList({
           />
         ))}
       </VStack>
-
       {isFetchingMore && (
         <Box display="flex" justifyContent="center" alignItems="center" mt={4}>
           <Spinner size="lg" />
