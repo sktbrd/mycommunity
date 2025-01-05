@@ -91,11 +91,6 @@ export default function RightSideBar() {
       }
     >
       <PostInfiniteScroll allPosts={allPosts} fetchPosts={fetchPosts} viewMode="list" />
-      {isLoading && (
-        <Box display="flex" justifyContent="center" alignItems="center" mt={4}>
-          <Spinner size="lg" />
-        </Box>
-      )}
     </Box>
   );
 }
