@@ -27,43 +27,41 @@ export default function Home() {
   };
 
   return (
-    <Box bg="background" color="text" minH="100vh">
-      <Flex direction={{ base: 'column', md: 'row' }}>
-        <Container maxW={{ base: '100%', md: '720px' }} p={0}>
-          <Box flex="1" p={2} justifyContent="center">
-            {!conversation ? (
-              <Box
-                h="100vh" // Adjust height as needed
-                overflowY="auto" // Enable vertical scrolling
-                pr={2}
-                pt={2}
-                position={"sticky"}
-                top={0}
-                sx={
-                  {
-                    '&::-webkit-scrollbar': {
-                      display: 'none',
-                    },
-                    scrollbarWidth: 'none',
-                  }
-                }
-              >
-                
-                <TweetList
-                  setConversation={setConversation}
-                  onOpen={onOpen}
-                  setReply={setReply}
-                  newComment={newComment}
-                />
-              </Box>
-            ) : (
-              <Conversation comment={conversation} setConversation={setConversation} onOpen={onOpen} setReply={setReply} />
-            )}
-          </Box>
-        </Container>
-        <RightSidebar />
-      </Flex>
+    <Flex direction={{ base: 'column', md: 'row' }}>
+      <Container
+        maxW={{ base: '100%', md: '720px' }}
+        h="100vh"
+        overflowY="auto"
+        pr={2}
+        pt={2}
+        position={"sticky"}
+        top={0}
+        justifyContent="center"
+        flex="1"
+        sx={
+          {
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+            scrollbarWidth: 'none',
+          }
+        }
+        id='scrollableDiv'>
+        {!conversation ? (
+
+
+          <TweetList
+            setConversation={setConversation}
+            onOpen={onOpen}
+            setReply={setReply}
+            newComment={newComment}
+          />
+        ) : (
+          <Conversation comment={conversation} setConversation={setConversation} onOpen={onOpen} setReply={setReply} />
+        )}
+      </Container>
+      <RightSidebar />
       {isOpen && <TweetReplyModal isOpen={isOpen} onClose={onClose} comment={reply} onNewReply={handleNewComment} />}
-    </Box>
+    </Flex>
   );
 }
