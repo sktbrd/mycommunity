@@ -66,13 +66,11 @@ export default function Sidebar() {
                 try {
                     // Fetching community data
                     const communityData = await getCommunityInfo(communityTag);
-                    console.log('Fetched Community Data:', communityData);
                     sessionStorage.setItem('communityData', JSON.stringify(communityData));
                     setCommunityInfo(communityData);
 
                     // Fetching profile data
                     const profileData = await getProfile(communityTag);
-                    console.log('Fetched Profile Data:', profileData);
                     sessionStorage.setItem('profileData', JSON.stringify(profileData));
                     setProfileInfo(profileData);
                 } catch (error) {
@@ -91,7 +89,6 @@ export default function Sidebar() {
             router.push(path);
         }
     };
-    console.log(user);
     return (
         <Box
             as="nav"

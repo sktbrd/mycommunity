@@ -1,37 +1,122 @@
-import { useState, useEffect } from 'react';
-import { getLastSnapsPost } from '../lib/hive/server-functions';
-import { get } from 'http';
+import HiveClient from '@/lib/hive/hiveclient';
+import { useState, useEffect, useRef } from 'react';
+import { ExtendedComment } from './useComments';
 
-interface Snap {
-    author: string;
-    permlink: string;
-    // Add other properties as needed
+interface lastContainerInfo {
+  permlink: string;
+  date: string;
 }
 
-const useSnaps = () => {
-    const [snaps, setSnaps] = useState<Snap[] | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<Error | null>(null);
-    // getCommentsOfFirst10Posts();
+export const useSnaps = () => {
+  const lastContainerRef = useRef<lastContainerInfo | null>(null); // Use useRef for last container
+  const fetchedPermlinksRef = useRef<Set<string>>(new Set()); // Track fetched permlinks
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [comments, setComments] = useState<ExtendedComment[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
+  const pageMinSize = 10;
+  
 
-    useEffect(() => {
-        const fetchSnaps = async () => {
-            // console.log('Fetching snaps...');
-            const snaps = await getLastSnapsPost();
-            console.dir(snaps)
-        };
-        fetchSnaps();
-    }, []);
+  // Filter comments by the target tag
+  function filterCommentsByTag(comments: ExtendedComment[], targetTag: string): ExtendedComment[] {
+    return comments.filter((commentItem) => {
+      try {
+        const metadata = JSON.parse(commentItem.json_metadata);
+        const tags = metadata.tags || [];
+        return tags.includes(targetTag);
+      } catch (error) {
+        console.error('Error parsing JSON metadata:', error);
+        return false; // Exclude comments with invalid JSON
+      }
+    });
+  }
 
-    return { snaps, loading, error };
+  // Fetch comments with a minimum size
+  async function getMoreSnaps(): Promise<ExtendedComment[]> {
+    const tag = process.env.NEXT_PUBLIC_HIVE_COMMUNITY_TAG || ''
+    const author = "peak.snaps";
+    const limit = 3;
+    const allFilteredComments: ExtendedComment[] = [];
+
+    let hasMoreData = true; // To track if there are more containers to fetch
+    let permlink = lastContainerRef.current?.permlink || "";
+    let date = lastContainerRef.current?.date || new Date().toISOString();
+
+    while (allFilteredComments.length < pageMinSize && hasMoreData) {
+
+      const result = await HiveClient.database.call('get_discussions_by_author_before_date', [
+        author,
+        permlink,
+        date,
+        limit,
+      ]);
+
+      if (!result.length) {
+        hasMoreData = false;
+        break;
+      }
+
+      for (const resultItem of result) {
+        const comments = (await HiveClient.database.call("get_content_replies", [
+          author,
+          resultItem.permlink,
+        ])) as ExtendedComment[];
+
+        const filteredComments = filterCommentsByTag(comments, tag);
+        allFilteredComments.push(...filteredComments);
+
+        // Add permlink to the fetched set
+        fetchedPermlinksRef.current.add(resultItem.permlink);
+
+        // Update the last container info for the next fetch
+        permlink = resultItem.permlink;
+        date = resultItem.created;
+      }
+    }
+
+    // Update the lastContainerRef state for the next API call
+    lastContainerRef.current = { permlink, date };
+
+    return allFilteredComments;
+  }
+
+  // Fetch posts when `currentPage` changes
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setIsLoading(true);
+      try {
+        const newSnaps = await getMoreSnaps();
+
+        if (newSnaps.length < pageMinSize) {
+          setHasMore(false); // No more items to fetch
+        }
+
+        // Avoid duplicates in the comments array
+        setComments((prevPosts) => {
+          const existingPermlinks = new Set(prevPosts.map((post) => post.permlink));
+          const uniqueSnaps = newSnaps.filter((snap) => !existingPermlinks.has(snap.permlink));
+          return [...prevPosts, ...uniqueSnaps];
+        });
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [currentPage]);
+
+  // Load the next page
+  const loadNextPage = () => {
+    if (!isLoading && hasMore) {
+        console.log('next page!', currentPage, lastContainerRef.current)
+
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  return { comments, isLoading, loadNextPage, hasMore, currentPage };
 };
-
-const fetchAllSnaps = async (lastSnapsPost: Snap): Promise<Snap[]> => {
-    // Implement the logic to fetch all snaps based on the last post
-    // This is a placeholder function and should be replaced with actual implementation
-    return [];
-};
-
-export default useSnaps;

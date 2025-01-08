@@ -35,19 +35,21 @@ export default function Home() {
               <Box
                 h="100vh" // Adjust height as needed
                 overflowY="auto" // Enable vertical scrolling
-                sx={{
-                  '&::-webkit-scrollbar': {
-                    display: 'none',
-                  },
-                  '-ms-overflow-style': 'none',
-                  scrollbarWidth: 'none',
-                }}
-                maxW={{ base: '100%', md: '720px' }}
+                pr={2}
+                pt={2}
+                position={"sticky"}
+                top={0}
+                sx={
+                  {
+                    '&::-webkit-scrollbar': {
+                      display: 'none',
+                    },
+                    scrollbarWidth: 'none',
+                  }
+                }
               >
-                <TweetComposer pa={thread_author} pp={thread_permlink} onNewComment={handleNewComment} />
+                
                 <TweetList
-                  author={thread_author}
-                  permlink={thread_permlink}
                   setConversation={setConversation}
                   onOpen={onOpen}
                   setReply={setReply}
