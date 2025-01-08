@@ -10,9 +10,9 @@ import Conversation from '@/components/homepage/Conversation';
 import TweetReplyModal from '@/components/homepage/TweetReplyModal';
 
 export default function Home() {
-  console.log('author', process.env.NEXT_PUBLIC_THREAD_AUTHOR);
-  const thread_author = process.env.NEXT_PUBLIC_THREAD_AUTHOR || 'skatedev';
-  const thread_permlink = process.env.NEXT_PUBLIC_THREAD_PERMLINK || 're-skatedev-sidr6t';
+  //console.log('author', process.env.NEXT_PUBLIC_THREAD_AUTHOR);
+  const thread_author = process.env.NEXT_PUBLIC_THREAD_AUTHOR || 'peak.snaps';
+  const thread_permlink = 'snaps';
 
   const [conversation, setConversation] = useState<Comment | undefined>();
   const [reply, setReply] = useState<Comment>();
@@ -51,6 +51,8 @@ export default function Home() {
 
 
           <TweetList
+            author={thread_author}
+            permlink={thread_permlink}
             setConversation={setConversation}
             onOpen={onOpen}
             setReply={setReply}

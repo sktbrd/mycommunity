@@ -8,7 +8,7 @@ import { CloseIcon } from '@chakra-ui/icons';
 import { FaImage } from 'react-icons/fa';
 import { MdGif } from 'react-icons/md';
 import { Comment } from '@hiveio/dhive';
-import { getFileSignature, uploadImage } from '@/lib/hive/client-functions';
+import { getFileSignature, getLastSnapsContainer, uploadImage } from '@/lib/hive/client-functions';
 
 interface TweetComposerProps {
     pa: string;
@@ -45,6 +45,7 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
             .replace(/[^a-zA-Z0-9]/g, "")
             .toLowerCase();
 
+        let validUrls: string[] = [];    
         if (images.length > 0) {
             const uploadedImages = await Promise.all(images.map(async (image, index) => {
                 const signature = await getFileSignature(image);
@@ -57,7 +58,8 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
                 }
             }));
 
-            const validUrls = uploadedImages.filter(Boolean);
+            //validUrls = uploadedImages.filter(Boolean);
+            validUrls = uploadedImages.filter((url): url is string => url !== null);
 
             if (validUrls.length > 0) {
                 const imageMarkup = validUrls.map((url: string | null) => `![image](${url?.toString() || ''})`).join('\n');
@@ -71,7 +73,10 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
 
         if (commentBody) {
             try {
-                const commentResponse = await aioha.comment(pa, pp, permlink, '', commentBody, { app: 'mycommunity' });
+                if (pp === "snaps") { 
+                    pp = (await getLastSnapsContainer()).permlink;
+                }
+                const commentResponse = await aioha.comment(pa, pp, permlink, '', commentBody, { app: 'mycommunity', tags: [process.env.NEXT_PUBLIC_HIVE_COMMUNITY_TAG, "snaps"], images: validUrls });
                 if (commentResponse.success) {
                     postBodyRef.current!.value = '';
                     setImages([]);
