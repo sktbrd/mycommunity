@@ -18,7 +18,6 @@ interface TweetComposerProps {
 }
 
 export default function TweetComposer ({ pa, pp, onNewComment, post = false }: TweetComposerProps) {
-    
     const { user, aioha } = useAioha();
     const postBodyRef = useRef<HTMLTextAreaElement>(null);
     const [images, setImages] = useState<File[]>([]);
@@ -27,7 +26,7 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
     const [isLoading, setIsLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState<number[]>([]);
 
-    const buttonText = (post ? "Reply" : "Post")
+    const buttonText = post ? "Reply" : "Post";
 
     async function handleComment() {
         let commentBody = postBodyRef.current?.value || '';
@@ -58,7 +57,6 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
                 }
             }));
 
-            //validUrls = uploadedImages.filter(Boolean);
             validUrls = uploadedImages.filter((url): url is string => url !== null);
 
             if (validUrls.length > 0) {
@@ -72,11 +70,11 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
         }
 
         if (commentBody) {
-            let snapsTags: string[]  = []
+            let snapsTags: string[] = [];
             try {
                 if (pp === "snaps") { 
                     pp = (await getLastSnapsContainer()).permlink;
-                    snapsTags = [process.env.NEXT_PUBLIC_HIVE_COMMUNITY_TAG || "", "snaps"]
+                    snapsTags = [process.env.NEXT_PUBLIC_HIVE_COMMUNITY_TAG || "", "snaps"];
                 }
                 const commentResponse = await aioha.comment(pa, pp, permlink, '', commentBody, { app: 'mycommunity', tags: snapsTags, images: validUrls });
                 if (commentResponse.success) {
@@ -85,17 +83,24 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
                     setSelectedGif(null);
 
                     const newComment: Partial<Comment> = {
-                        author: user, // Assuming `pa` is the current user's author name
+                        author: user, 
                         permlink: permlink,
                         body: commentBody,
                     };
 
-                    onNewComment(newComment); // Pass the actual Comment data
+                    onNewComment(newComment); 
                 }
             } finally {
                 setIsLoading(false);
                 setUploadProgress([]);
             }
+        }
+    }
+
+    // Detect Ctrl+Enter and submit
+    function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+        if (event.ctrlKey && event.key === 'Enter') {
+            handleComment();
         }
     }
 
@@ -110,6 +115,7 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
                 ref={postBodyRef}
                 _placeholder={{ color: 'text' }}
                 isDisabled={isLoading}
+                onKeyDown={handleKeyDown} // Attach the keydown handler
             />
             <HStack justify="space-between" mb={3}>
                 <HStack>
@@ -170,5 +176,4 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
             )}
         </Box>
     );
-};
-
+}
