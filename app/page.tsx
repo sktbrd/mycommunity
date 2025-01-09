@@ -11,7 +11,7 @@ import { useSnaps } from '@/hooks/useSnaps';
 
 export default function Home() {
   //console.log('author', process.env.NEXT_PUBLIC_THREAD_AUTHOR);
-  const thread_author = process.env.NEXT_PUBLIC_THREAD_AUTHOR || 'peak.snaps';
+  const thread_author = 'peak.snaps';
   const thread_permlink = 'snaps';
 
   const [conversation, setConversation] = useState<Comment | undefined>();

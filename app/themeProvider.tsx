@@ -43,7 +43,10 @@ export const useTheme = () => {
 
 // ThemeProvider component to manage and provide theme state
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-    const [themeName, setThemeName] = useState<ThemeName>('hacker'); // Default theme
+    const defaultTheme = process.env.NEXT_PUBLIC_THEME as ThemeName; // Default theme
+    const [themeName, setThemeName] = useState<ThemeName>(
+        themeMap[defaultTheme] ? defaultTheme : 'hacker'
+    );    
     const [theme, setTheme] = useState(themeMap[themeName]);
 
     useEffect(() => {

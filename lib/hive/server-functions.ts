@@ -108,18 +108,4 @@ export async function createAccount(username: string, password: string) {
     }
 }
 
-export async function getLastSnapsPost() {
-    const author = "peak.snaps";    // error was here, you typed peakd.snaps  ;(
-    const beforeDate = new Date().toISOString().split('.')[0];
-    const permlink = '';
-    const limit = 1;
-
-    const result = await HiveClient.database.call('get_discussions_by_author_before_date',
-        [author, permlink, beforeDate, limit]);
-
-    return {
-        author,
-        permlink: result[0].permlink
-    }
-}
 

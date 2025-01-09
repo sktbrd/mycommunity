@@ -40,16 +40,6 @@ export default function TweetList(
   data,
 }: TweetListProps) {
 
-  //const snaps = useSnaps();
-  //const commentsData = useComments(author, permlink, post);
-
-  // Decide which data to use
-  //const isSnaps = permlink === 'snaps';
-  //const comments = isSnaps ? snaps.comments : commentsData.comments;
-  //const loadNextPage = isSnaps ? snaps.loadNextPage : () => {};
-  //const isLoading = isSnaps ? snaps.isLoading : commentsData.isLoading;
-  //const hasMore = isSnaps ? snaps.hasMore : false;
-
   const { comments, loadNextPage, isLoading, hasMore } = data
 
   comments.sort((a: ExtendedComment, b: ExtendedComment) => {
