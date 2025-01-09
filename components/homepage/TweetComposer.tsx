@@ -28,6 +28,13 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
 
     const buttonText = post ? "Reply" : "Post";
 
+    // Function to extract hashtags from text
+    function extractHashtags(text: string): string[] {
+        const hashtagRegex = /#(\w+)/g;
+        const matches = text.match(hashtagRegex) || [];
+        return matches.map(hashtag => hashtag.slice(1)); // Remove the '#' symbol
+    }
+
     async function handleComment() {
         let commentBody = postBodyRef.current?.value || '';
 
@@ -72,10 +79,16 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
         if (commentBody) {
             let snapsTags: string[] = [];
             try {
+                // Add existing `snaps` tag logic
                 if (pp === "snaps") { 
                     pp = (await getLastSnapsContainer()).permlink;
                     snapsTags = [process.env.NEXT_PUBLIC_HIVE_COMMUNITY_TAG || "", "snaps"];
                 }
+
+                // Extract hashtags from the comment body and add to `snapsTags`
+                const hashtags = extractHashtags(commentBody);
+                snapsTags = [...new Set([...snapsTags, ...hashtags])]; // Add hashtags without duplicates
+
                 const commentResponse = await aioha.comment(pa, pp, permlink, '', commentBody, { app: 'mycommunity', tags: snapsTags, images: validUrls });
                 if (commentResponse.success) {
                     postBodyRef.current!.value = '';
