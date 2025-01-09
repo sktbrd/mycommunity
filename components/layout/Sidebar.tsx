@@ -10,12 +10,6 @@ import { animate, color, motion, px } from 'framer-motion';
 import { FaGear } from 'react-icons/fa6';
 import { KeyTypes } from '@aioha/aioha';
 import '@aioha/react-ui/dist/build.css';
-import src from '@emotion/styled';
-import base from '@emotion/styled/base';
-import { profile, log } from 'console';
-import { title } from 'process';
-
-
 
 interface ProfileInfo {
     metadata: {
@@ -40,7 +34,6 @@ export default function Sidebar() {
     const [communityInfo, setCommunityInfo] = useState<CommunityInfo | null>(null); // State to hold community info
     const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>(null); // State to hold profile info
     const [loading, setLoading] = useState(true); // Loading state
-    const isBusiness = process.env.NEXT_PUBLIC_SITE_TYPE === 'business';
     const { colorMode } = useColorMode();
     const [modalDisplayed, setModalDisplayed] = useState(false);
 
@@ -203,18 +196,6 @@ export default function Sidebar() {
                                 Wallet
                             </Button>
                         </>
-                    )}
-                    {isBusiness && (
-                        <Button
-                            onClick={() => handleNavigation("/buy")}
-                            variant="ghost"
-                            w="full"
-                            justifyContent="flex-start"
-                            leftIcon={<Icon as={FiShoppingCart} boxSize={4} />}
-                            px={1}
-                        >
-                            Store
-                        </Button>
                     )}
                     <Button
                         onClick={() => handleNavigation("/settings")}
