@@ -59,8 +59,6 @@ export default function TweetList(
   }
 
   return (
-        <VStack spacing={2} align="stretch" mx="auto">
-        <TweetComposer pa={author} pp={permlink} onNewComment={handleNewComment} />
         <InfiniteScroll
             dataLength={comments.length}
             next={loadNextPage}
@@ -71,8 +69,9 @@ export default function TweetList(
                 </Box>
                 )}
             scrollableTarget="scrollableDiv"
-            style={{ padding: 15 }}
         >
+          <VStack spacing={1} align="stretch" mx="auto">
+          <TweetComposer pa={author} pp={permlink} onNewComment={handleNewComment} />
           {comments.map((comment: ExtendedComment) => (
             <Tweet
               key={comment.permlink}
@@ -82,8 +81,8 @@ export default function TweetList(
               {...(!post ? { setConversation } : {})}
             />
           ))}
-        
+          </VStack>
       </InfiniteScroll>
-      </VStack>
+
   );
 }

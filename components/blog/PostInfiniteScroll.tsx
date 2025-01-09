@@ -24,7 +24,6 @@ export default function PostsInfiniteScroll({ allPosts, fetchPosts, viewMode }: 
                 </Box>
                 )}
             scrollableTarget="scrollableDiv"
-            style={{ padding: 15 }}
         >
             {allPosts && (<PostGrid posts={allPosts ?? []} columns={viewMode === 'grid' ? 3 : 1} />)}
         </InfiniteScroll>

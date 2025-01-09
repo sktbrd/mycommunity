@@ -76,7 +76,8 @@ export default function RightSideBar() {
       w={{ base: '100%', md: '350px' }}
       h="100vh"
       overflowY="auto"
-      pr={2}
+      pr={4}
+      pl={2}
       pt={2}
       position={"sticky"}
       top={0}
