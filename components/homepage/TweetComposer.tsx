@@ -18,6 +18,7 @@ interface TweetComposerProps {
 }
 
 export default function TweetComposer ({ pa, pp, onNewComment, post = false }: TweetComposerProps) {
+    
     const { user, aioha } = useAioha();
     const postBodyRef = useRef<HTMLTextAreaElement>(null);
     const [images, setImages] = useState<File[]>([]);
@@ -29,7 +30,6 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
     const buttonText = (post ? "Reply" : "Post")
 
     async function handleComment() {
-
         let commentBody = postBodyRef.current?.value || '';
 
         if (!commentBody.trim() && images.length === 0 && !selectedGif) {
@@ -72,11 +72,13 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
         }
 
         if (commentBody) {
+            let snapsTags: string[]  = []
             try {
                 if (pp === "snaps") { 
                     pp = (await getLastSnapsContainer()).permlink;
+                    snapsTags = [process.env.NEXT_PUBLIC_HIVE_COMMUNITY_TAG || "", "snaps"]
                 }
-                const commentResponse = await aioha.comment(pa, pp, permlink, '', commentBody, { app: 'mycommunity', tags: [process.env.NEXT_PUBLIC_HIVE_COMMUNITY_TAG, "snaps"], images: validUrls });
+                const commentResponse = await aioha.comment(pa, pp, permlink, '', commentBody, { app: 'mycommunity', tags: snapsTags, images: validUrls });
                 if (commentResponse.success) {
                     postBodyRef.current!.value = '';
                     setImages([]);

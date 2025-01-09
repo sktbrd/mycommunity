@@ -1,13 +1,13 @@
 'use client';
 
-import { Box, Container, Flex } from '@chakra-ui/react';
+import { Container, Flex } from '@chakra-ui/react';
 import TweetList from '@/components/homepage/TweetList';
-import TweetComposer from '@/components/homepage/TweetComposer';
 import RightSidebar from '@/components/layout/RightSideBar';
 import { useState } from 'react';
 import { Comment } from '@hiveio/dhive'; // Ensure this import is consistent
 import Conversation from '@/components/homepage/Conversation';
 import TweetReplyModal from '@/components/homepage/TweetReplyModal';
+import { useSnaps } from '@/hooks/useSnaps';
 
 export default function Home() {
   //console.log('author', process.env.NEXT_PUBLIC_THREAD_AUTHOR);
@@ -25,6 +25,8 @@ export default function Home() {
   const handleNewComment = (newComment: Partial<Comment> | CharacterData) => {
     setNewComment(newComment as Comment);
   };
+
+  const snaps = useSnaps();
 
   return (
     <Flex direction={{ base: 'column', md: 'row' }}>
@@ -57,6 +59,7 @@ export default function Home() {
             onOpen={onOpen}
             setReply={setReply}
             newComment={newComment}
+            data={snaps}
           />
         ) : (
           <Conversation comment={conversation} setConversation={setConversation} onOpen={onOpen} setReply={setReply} />

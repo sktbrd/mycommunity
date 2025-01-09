@@ -23,16 +23,18 @@ export const useSnaps = () => {
   function filterCommentsByTag(comments: ExtendedComment[], targetTag: string): ExtendedComment[] {
     return comments.filter((commentItem) => {
       try {
+        if (!commentItem.json_metadata) {
+          return false; // Skip if json_metadata is empty
+        }
         const metadata = JSON.parse(commentItem.json_metadata);
         const tags = metadata.tags || [];
         return tags.includes(targetTag);
       } catch (error) {
-        console.error('Error parsing JSON metadata:', error);
+        console.error('Error parsing JSON metadata for comment:', commentItem, error);
         return false; // Exclude comments with invalid JSON
       }
     });
   }
-
   // Fetch comments with a minimum size
   async function getMoreSnaps(): Promise<ExtendedComment[]> {
     const tag = process.env.NEXT_PUBLIC_HIVE_COMMUNITY_TAG || ''
@@ -112,8 +114,6 @@ export const useSnaps = () => {
   // Load the next page
   const loadNextPage = () => {
     if (!isLoading && hasMore) {
-        console.log('next page!', currentPage, lastContainerRef.current)
-
       setCurrentPage((prevPage) => prevPage + 1);
     }
   };

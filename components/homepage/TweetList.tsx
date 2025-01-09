@@ -14,13 +14,22 @@ interface TweetListProps {
   setReply: (reply: ExtendedComment) => void;
   newComment: ExtendedComment | null;
   post?: boolean;
+  data: InfiniteScrollData
+}
+
+interface InfiniteScrollData {
+  comments: ExtendedComment[];
+  loadNextPage: () => void; // Default can be an empty function in usage
+  isLoading: boolean;
+  hasMore: boolean; // Default can be `false` in usage
 }
 
 function handleNewComment() {
 
 }
 
-export default function TweetList({
+export default function TweetList(
+{
   author,
   permlink,
   setConversation,
@@ -28,25 +37,26 @@ export default function TweetList({
   setReply,
   newComment,
   post = false,
+  data,
 }: TweetListProps) {
 
-  const snaps = useSnaps();
-  const commentsData = useComments(author, permlink, post);
+  //const snaps = useSnaps();
+  //const commentsData = useComments(author, permlink, post);
 
   // Decide which data to use
-  const isSnaps = permlink === 'snaps';
-  const comments = isSnaps ? snaps.comments : commentsData.comments;
-  const loadNextPage = isSnaps ? snaps.loadNextPage : () => {};
-  const isLoading = isSnaps ? snaps.isLoading : commentsData.isLoading;
-  const hasMore = isSnaps ? snaps.hasMore : false;
+  //const isSnaps = permlink === 'snaps';
+  //const comments = isSnaps ? snaps.comments : commentsData.comments;
+  //const loadNextPage = isSnaps ? snaps.loadNextPage : () => {};
+  //const isLoading = isSnaps ? snaps.isLoading : commentsData.isLoading;
+  //const hasMore = isSnaps ? snaps.hasMore : false;
+
+  const { comments, loadNextPage, isLoading, hasMore } = data
 
   comments.sort((a: ExtendedComment, b: ExtendedComment) => {
     return new Date(b.created).getTime() - new Date(a.created).getTime();
   });
   // Handle new comment addition
   //const updatedComments = newComment ? [newComment, ...comments] : comments;
-
-  console.log('here', comments)
 
   if (isLoading && comments.length === 0) {
     // Initial loading state
@@ -59,6 +69,8 @@ export default function TweetList({
   }
 
   return (
+        <VStack spacing={2} align="stretch" mx="auto">
+        <TweetComposer pa={author} pp={permlink} onNewComment={handleNewComment} />
         <InfiniteScroll
             dataLength={comments.length}
             next={loadNextPage}
@@ -71,8 +83,6 @@ export default function TweetList({
             scrollableTarget="scrollableDiv"
             style={{ padding: 15 }}
         >
-        <VStack spacing={2} align="stretch" mx="auto">
-        <TweetComposer pa={author} pp={permlink} onNewComment={handleNewComment} />
           {comments.map((comment: ExtendedComment) => (
             <Tweet
               key={comment.permlink}
@@ -82,7 +92,8 @@ export default function TweetList({
               {...(!post ? { setConversation } : {})}
             />
           ))}
-        </VStack>
+        
       </InfiniteScroll>
+      </VStack>
   );
 }
