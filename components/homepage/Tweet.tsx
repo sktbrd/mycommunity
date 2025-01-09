@@ -60,7 +60,7 @@ const Tweet = ({ comment, onOpen, setReply, setConversation, level = 0 }: TweetP
                         <Text fontWeight="medium" fontSize="sm">
                             <Link href={`/@${comment.author}`}>@{comment.author}</Link>
                         </Text>
-                        <Text fontSize="sm" color="secondary">
+                        <Text fontSize="sm" color="primary">
                             {commentDate}
                         </Text>
                     </Box>
