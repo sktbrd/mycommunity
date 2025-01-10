@@ -15,9 +15,10 @@ interface TweetComposerProps {
     pp: string;
     onNewComment: (newComment: Partial<Comment>) => void;
     post?: boolean;
+    onClose: () => void;
 }
 
-export default function TweetComposer ({ pa, pp, onNewComment, post = false }: TweetComposerProps) {
+export default function TweetComposer ({ pa, pp, onNewComment, post = false, onClose }: TweetComposerProps) {
     const { user, aioha } = useAioha();
     const postBodyRef = useRef<HTMLTextAreaElement>(null);
     const [images, setImages] = useState<File[]>([]);
@@ -102,6 +103,8 @@ export default function TweetComposer ({ pa, pp, onNewComment, post = false }: T
                     };
 
                     onNewComment(newComment); 
+                    onClose();
+                    
                 }
             } finally {
                 setIsLoading(false);

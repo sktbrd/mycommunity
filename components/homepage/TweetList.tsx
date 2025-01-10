@@ -71,7 +71,7 @@ export default function TweetList(
             scrollableTarget="scrollableDiv"
         >
           <VStack spacing={1} align="stretch" mx="auto">
-          <TweetComposer pa={author} pp={permlink} onNewComment={handleNewComment} />
+          <TweetComposer pa={author} pp={permlink} onNewComment={handleNewComment} onClose={() => null} />
           {comments.map((comment: ExtendedComment) => (
             <Tweet
               key={comment.permlink}
