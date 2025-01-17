@@ -1,3 +1,6 @@
+# My Community 
+> MyCommunity is a versatile React template designed for effortlessly deploying your Hive-based community website.
+
 # Run Locally 
 
 ## Install Packages
@@ -42,4 +45,4 @@ The easiest way to deploy your community app is in Vercel.
 ## Business Setup 
 
 - Distriator Api 
-- Setup Products list 
+- Setup Products list
