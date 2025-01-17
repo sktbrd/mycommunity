@@ -456,22 +456,13 @@ export async function getLastSnapsContainer() {
   }
 }
 
-export async function rewardFund() {
-  const client = HiveClient;
-  return await client.database.call('get_reward_fund', ['post']);
-}
-
-export async function getFeedHistory() {
-  const client = HiveClient;
-  return await client.database.call('get_feed_history', []);
-}
-
 export async function calculateUserVoteValue(user: any) {
   const { voting_power = 0, vesting_shares = 0, received_vesting_shares = 0, delegated_vesting_shares = 0 } =
     user || {};
 
-  const reward_fund = await rewardFund();
-  const feed_history = await getFeedHistory();
+  const client = HiveClient;
+  const reward_fund = await client.database.call('get_reward_fund', ['post']);
+  const feed_history = await client.database.call('get_feed_history', []);
 
   const { reward_balance, recent_claims } = reward_fund;
   const { base, quote } = feed_history.current_median_history;
