@@ -27,7 +27,7 @@ const Tweet = ({ comment, onOpen, setReply, setConversation, level = 0 }: TweetP
     const [rewardAmount, setRewardAmount] = useState(getPayoutValue(comment));
 
     const calculateVotingPower = () => {
-        if (!hiveAccount) return 0;
+        if (!hiveAccount || !hiveAccount.voting_manabar) return 0;
         const { voting_manabar, voting_power } = hiveAccount;
         const elapsedTime = (Date.now() / 1000) - voting_manabar.last_update_time;
         const regeneratedMana = elapsedTime * 10000 / 432000; // 432000 seconds in 5 days
