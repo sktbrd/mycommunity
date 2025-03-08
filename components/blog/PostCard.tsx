@@ -18,32 +18,31 @@ export default function PostCard({ post }: PostCardProps) {
     const { title, author, body, json_metadata, created } = post;
     const postDate = getPostDate(created);
     const metadata = JSON.parse(json_metadata);
-    const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const [imageUrls, setImageUrls] = useState<string[]>([]); // Initialize with an empty array
     const [sliderValue, setSliderValue] = useState(100);
     const [showSlider, setShowSlider] = useState(false);
     const { aioha, user } = useAioha();
     const [voted, setVoted] = useState(post.active_votes?.some(item => item.voter === user));
     const router = useRouter();
     const default_thumbnail = 'https://images.hive.blog/u/' + author + '/avatar/large';
+    const placeholderImage = 'https://via.placeholder.com/200'; // Placeholder image URL
     // **State to control how many images to show initially**
     const [visibleImages, setVisibleImages] = useState<number>(3); // Start with 3 images
-
+    console.log(imageUrls)
+    console.log(metadata.image)
     useEffect(() => {
-        const images = extractImagesFromBody(body);
-        if (images && images.length > 0) {
+        let images = [];
+        if (metadata.image) {
+            images = Array.isArray(metadata.image) ? metadata.image : [metadata.image];
+        }
+        if (images.length > 0) {
             setImageUrls(images);
+        } else {
+            setImageUrls([placeholderImage]); // Set placeholder image if no images found
         }
     }, [body]);
 
-    function extractImagesFromBody(body: string): string[] {
-        const markdownImageRegex = /!\[.*?\]\((.*?)\)/g;
-        const htmlImageRegex = /<img\s+[^>]*src="([^"]*)"[^>]*>/g;
-        const markdownMatches = Array.from(body.matchAll(markdownImageRegex)) as RegExpExecArray[];
-        const htmlMatches = Array.from(body.matchAll(htmlImageRegex)) as RegExpExecArray[];
-        const markdownImages = markdownMatches.map(match => match[1]);
-        const htmlImages = htmlMatches.map(match => match[1]);
-        return [...markdownImages, ...htmlImages];
-    }
+    console.log(metadata)
 
     function handleHeartClick() {
         setShowSlider(!showSlider);
