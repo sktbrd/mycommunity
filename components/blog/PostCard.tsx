@@ -9,6 +9,7 @@ import { getPostDate } from '@/lib/utils/GetPostDate';
 import { useAioha } from '@aioha/react-ui';
 import { useRouter } from 'next/navigation';
 import { getPayoutValue } from '@/lib/hive/client-functions';
+import { extractYoutubeLinks, LinkWithDomain } from '@/lib/utils/extractImageUrls'; // Import YouTube extraction function
 
 interface PostCardProps {
     post: Discussion;
@@ -18,7 +19,8 @@ export default function PostCard({ post }: PostCardProps) {
     const { title, author, body, json_metadata, created } = post;
     const postDate = getPostDate(created);
     const metadata = JSON.parse(json_metadata);
-    const [imageUrls, setImageUrls] = useState<string[]>([]); // Initialize with an empty array
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const [youtubeLinks, setYoutubeLinks] = useState<LinkWithDomain[]>([]); // Add state for YouTube links
     const [sliderValue, setSliderValue] = useState(100);
     const [showSlider, setShowSlider] = useState(false);
     const { aioha, user } = useAioha();
@@ -35,12 +37,20 @@ export default function PostCard({ post }: PostCardProps) {
         if (metadata.image) {
             images = Array.isArray(metadata.image) ? metadata.image : [metadata.image];
         }
+
         if (images.length > 0) {
             setImageUrls(images);
         } else {
-            setImageUrls([placeholderImage]); // Set placeholder image if no images found
+            // If no images found, try to extract YouTube links
+            const ytLinks = extractYoutubeLinks(body);
+            if (ytLinks.length > 0) {
+                setYoutubeLinks(ytLinks);
+                setImageUrls([]); // Ensure imageUrls is empty to trigger YouTube display
+            } else {
+                setImageUrls([placeholderImage]); // Set placeholder only if no YouTube links found
+            }
         }
-    }, [body]);
+    }, [body, metadata]);
 
     console.log(metadata)
 
@@ -66,6 +76,22 @@ export default function PostCard({ post }: PostCardProps) {
         }
     }
 
+    // Handle card click - simplified to just call viewPost
+    function handleCardClick() {
+        viewPost();
+    }
+
+    // Modified to only stop propagation
+    function stopPropagation(e: React.MouseEvent) {
+        e.stopPropagation();
+    }
+
+    // Create a proper handler for Swiper click events
+    function handleSwiperClick(swiper: any, event: MouseEvent | TouchEvent | PointerEvent) {
+        // Stop the event from bubbling up to the card
+        event.stopPropagation();
+    }
+
     return (
         <Box
             boxShadow={'lg'}
@@ -78,13 +104,18 @@ export default function PostCard({ post }: PostCardProps) {
             flexDirection="column"
             justifyContent="space-between"
             height="100%"
+            onClick={handleCardClick}
+            cursor="pointer"
+            _hover={{ boxShadow: 'xl' }}
+            position="relative" // Add position relative to help with event handling
         >
+            {/* Remove onClick={stopPropagation} from the outer flex */}
             <Flex justifyContent="space-between" alignItems="center">
                 <Flex alignItems="center">
                     <Avatar size="sm" name={author} src={`https://images.hive.blog/u/${author}/avatar/sm`} />
                     <Box ml={3}>
                         <Text fontWeight="medium" fontSize="sm">
-                            <Link href={`/@${author}`}>@{author}</Link>
+                            <Link href={`/@${author}`} onClick={stopPropagation}>@{author}</Link>
                         </Text>
                         <Text fontSize="sm" color="primary">
                             {postDate}
@@ -96,13 +127,13 @@ export default function PostCard({ post }: PostCardProps) {
                 fontWeight="bold"
                 fontSize="lg"
                 textAlign="left"
-                onClick={viewPost}
                 mb={2}
                 isTruncated
             >
                 {title}
             </Text>
 
+            {/* Only stop propagation on truly interactive elements, not the container */}
             <Box flex="1" display="flex" alignItems="flex-end" justifyContent="center">
                 {imageUrls.length > 0 ? (
                     <Swiper
@@ -111,10 +142,12 @@ export default function PostCard({ post }: PostCardProps) {
                         pagination={{ clickable: true }}
                         navigation={true}
                         modules={[Navigation, Pagination]}
-                        onSlideChange={handleSlideChange} // Listen to slide changes
+                        onSlideChange={handleSlideChange}
+                    // Remove the onClick={stopPropagation} prop as it causes type errors
                     >
                         {imageUrls.slice(0, visibleImages).map((url, index) => (
-                            <SwiperSlide key={index}>
+                            // Add the stopPropagation to each SwiperSlide instead
+                            <SwiperSlide key={index} onClick={stopPropagation}>
                                 <Box h="200px" w="100%">
                                     <Image
                                         src={url}
@@ -125,6 +158,32 @@ export default function PostCard({ post }: PostCardProps) {
                                         h="100%"
                                         loading="lazy"
                                     />
+                                </Box>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                ) : youtubeLinks.length > 0 ? (
+                    <Swiper
+                        spaceBetween={10}
+                        slidesPerView={1}
+                        pagination={{ clickable: true }}
+                        navigation={true}
+                        modules={[Navigation, Pagination]}
+                    // Remove the onClick={stopPropagation} prop as it causes type errors
+                    >
+                        {youtubeLinks.map((link, index) => (
+                            // Keep the stopPropagation on the SwiperSlide
+                            <SwiperSlide key={index} onClick={stopPropagation}>
+                                <Box h="200px" w="100%">
+                                    <iframe
+                                        src={link.url}
+                                        title={`YouTube video from ${link.domain}`}
+                                        width="100%"
+                                        height="100%"
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    ></iframe>
                                 </Box>
                             </SwiperSlide>
                         ))}
@@ -143,10 +202,11 @@ export default function PostCard({ post }: PostCardProps) {
                     </Box>
                 )}
             </Box>
-            {/* Vote and Stats Section */}
+
+            {/* Only stop propagation on the vote controls */}
             <Box mt="auto">
                 {showSlider ? (
-                    <Flex mt={4} alignItems="center">
+                    <Flex mt={4} alignItems="center" onClick={stopPropagation}>
                         <Box width="100%" mr={4}>
                             <Slider
                                 aria-label="slider-ex-1"
@@ -159,24 +219,44 @@ export default function PostCard({ post }: PostCardProps) {
                                 <SliderTrack>
                                     <SliderFilledTrack />
                                 </SliderTrack>
-                                <SliderThumb />
+                                <SliderThumb cursor="grab" _active={{ cursor: "grabbing" }} />
                             </Slider>
                         </Box>
-                        <Button size="xs" onClick={handleVote} pl={5} pr={5}>Vote {sliderValue} %</Button>
-                        <Button size="xs" onClick={handleHeartClick} ml={1}>X</Button>
+                        <Button size="xs" onClick={(e) => {
+                            e.stopPropagation();
+                            handleVote();
+                        }} pl={5} pr={5} cursor="pointer">Vote {sliderValue} %</Button>
+                        <Button size="xs" onClick={(e) => {
+                            e.stopPropagation();
+                            handleHeartClick();
+                        }} ml={1} cursor="pointer">X</Button>
                     </Flex>
                 ) : (
-                    <Flex mt={4} justifyContent="space-between" alignItems="center">
+                    <Flex mt={4} justifyContent="space-between" alignItems="center" onClick={stopPropagation}>
                         <Flex alignItems="center">
                             {voted ? (
-                                <Icon as={FaHeart} onClick={handleHeartClick} cursor="pointer" />
+                                <Icon
+                                    as={FaHeart}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleHeartClick();
+                                    }}
+                                    cursor="pointer"
+                                />
                             ) : (
-                                <Icon as={FaRegHeart} onClick={handleHeartClick} cursor="pointer" />
+                                <Icon
+                                    as={FaRegHeart}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleHeartClick();
+                                    }}
+                                    cursor="pointer"
+                                />
                             )}
                             <Text ml={2} fontSize="sm">
                                 {post.active_votes.length}
                             </Text>
-                            <Icon as={FaComment} ml={4} />
+                            <Icon as={FaComment} ml={4} cursor="pointer" />
                             <Text ml={2} fontSize="sm">
                                 {post.children}
                             </Text>
