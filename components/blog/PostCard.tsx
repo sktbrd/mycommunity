@@ -1,5 +1,5 @@
 import { Box, Image, Text, Avatar, Flex, Icon, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Button, Link } from '@chakra-ui/react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Discussion } from '@hiveio/dhive';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -18,20 +18,28 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
     const { title, author, body, json_metadata, created } = post;
     const postDate = getPostDate(created);
-    const metadata = JSON.parse(json_metadata);
+
+    // Use useMemo to parse JSON only when json_metadata changes
+    const metadata = useMemo(() => {
+        try {
+            return JSON.parse(json_metadata);
+        } catch (e) {
+            console.error("Error parsing JSON metadata", e);
+            return {};
+        }
+    }, [json_metadata]);
+
     const [imageUrls, setImageUrls] = useState<string[]>([]);
-    const [youtubeLinks, setYoutubeLinks] = useState<LinkWithDomain[]>([]); // Add state for YouTube links
+    const [youtubeLinks, setYoutubeLinks] = useState<LinkWithDomain[]>([]);
     const [sliderValue, setSliderValue] = useState(100);
     const [showSlider, setShowSlider] = useState(false);
     const { aioha, user } = useAioha();
     const [voted, setVoted] = useState(post.active_votes?.some(item => item.voter === user));
     const router = useRouter();
     const default_thumbnail = 'https://images.hive.blog/u/' + author + '/avatar/large';
-    const placeholderImage = 'https://via.placeholder.com/200'; // Placeholder image URL
-    // **State to control how many images to show initially**
-    const [visibleImages, setVisibleImages] = useState<number>(3); // Start with 3 images
-    console.log(imageUrls)
-    console.log(metadata.image)
+    const placeholderImage = 'https://via.placeholder.com/200';
+    const [visibleImages, setVisibleImages] = useState<number>(3);
+
     useEffect(() => {
         let images = [];
         if (metadata.image) {
@@ -41,18 +49,15 @@ export default function PostCard({ post }: PostCardProps) {
         if (images.length > 0) {
             setImageUrls(images);
         } else {
-            // If no images found, try to extract YouTube links
             const ytLinks = extractYoutubeLinks(body);
             if (ytLinks.length > 0) {
                 setYoutubeLinks(ytLinks);
-                setImageUrls([]); // Ensure imageUrls is empty to trigger YouTube display
+                setImageUrls([]);
             } else {
-                setImageUrls([placeholderImage]); // Set placeholder only if no YouTube links found
+                setImageUrls([placeholderImage]);
             }
         }
-    }, [body, metadata]);
-
-    console.log(metadata)
+    }, [body, metadata, placeholderImage]);
 
     function handleHeartClick() {
         setShowSlider(!showSlider);

@@ -78,10 +78,14 @@ export default function Sidebar() {
     }, [communityTag]);
 
     const handleNavigation = (path: string) => {
-        if (router) {
+        try {
+            console.log("Navigating to:", path);
             router.push(path);
+        } catch (error) {
+            console.error("Navigation error:", error);
         }
     };
+
     return (
         <Box
             as="nav"
@@ -95,8 +99,8 @@ export default function Sidebar() {
                     display: 'none',
                 },
                 scrollbarWidth: 'none',
-                boxShadow: '1px 0 3px rgba(0, 0, 0, 0.1)', // Reduced shadow
-                backdropFilter: 'blur(5px)', // Added blur
+                // boxShadow: '1px 0 3px rgba(0, 0, 0, 0.1)', // Reduced shadow
+                // backdropFilter: 'blur(5px)', // Added blur
             }}
         >
             <Flex direction="column" justify="space-between" height="100%">
