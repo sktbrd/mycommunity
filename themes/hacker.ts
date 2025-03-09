@@ -21,9 +21,9 @@ const hackerTheme = extendTheme({
         warning: '#FF851B', // Orange for warnings
     },
     fonts: {
-        heading: '"Courier New", monospace', // Monospace font for headings
-        body: '"Courier New", monospace', // Monospace font for body text
-        mono: '"Courier New", monospace', // Monospace for code-like elements
+        heading: 'var(--font-vt323), monospace',
+        body: 'var(--font-vt323), monospace',
+        mono: 'var(--font-vt323), "Courier New", monospace',
     },
     fontSizes: {
         xs: '12px',
