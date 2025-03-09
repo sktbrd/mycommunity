@@ -9,6 +9,7 @@ import nounsDaoTheme from '@/themes/nounish';
 import windows95Theme from '@/themes/windows95';
 import hiveBRTheme from '@/themes/hivebr';
 import cannabisTheme from '@/themes/cannabis';
+import gayTheme from '@/themes/gay';
 
 // Map of available themes
 export const themeMap = {
@@ -19,6 +20,7 @@ export const themeMap = {
     windows95: windows95Theme,
     hiveBR: hiveBRTheme,
     cannabis: cannabisTheme,
+    gay: gayTheme, // Add the new theme here
 };
 
 // Define the types
