@@ -85,10 +85,9 @@ export default function Sidebar() {
     return (
         <Box
             as="nav"
-            bg="muted"
+            bg="background"
             p={1}
             w={{ base: 'full', md: '20%' }}
-            // minH={{ base: 'auto', md: '100vh' }}
             h={"100vh"}
             display={{ base: 'none', md: 'block' }}
             sx={{
@@ -96,6 +95,8 @@ export default function Sidebar() {
                     display: 'none',
                 },
                 scrollbarWidth: 'none',
+                boxShadow: '1px 0 3px rgba(0, 0, 0, 0.1)', // Reduced shadow
+                backdropFilter: 'blur(5px)', // Added blur
             }}
         >
             <Flex direction="column" justify="space-between" height="100%">

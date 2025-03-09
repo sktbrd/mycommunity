@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 
 // Import your existing themes
 import forestTheme from '@/themes/forest';
@@ -46,7 +46,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const defaultTheme = process.env.NEXT_PUBLIC_THEME as ThemeName; // Default theme
     const [themeName, setThemeName] = useState<ThemeName>(
         themeMap[defaultTheme] ? defaultTheme : 'hacker'
-    );    
+    );
     const [theme, setTheme] = useState(themeMap[themeName]);
 
     useEffect(() => {
@@ -63,9 +63,22 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('theme', newThemeName);
     };
 
+    // Add global styles to ensure body background matches theme
+    const styles = {
+        global: {
+            'html, body': {
+                bg: 'background',
+                color: 'text',
+            }
+        }
+    };
+
+    // Extend the selected theme with our global styles
+    const extendedTheme = extendTheme({ styles }, theme);
+
     return (
         <ThemeContext.Provider value={{ themeName, setThemeName: changeTheme, theme }}>
-            <ChakraProvider theme={theme}>{children}</ChakraProvider>
+            <ChakraProvider theme={extendedTheme}>{children}</ChakraProvider>
         </ThemeContext.Provider>
     );
 };
